@@ -3,11 +3,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import urllib.parse
 
-from .config import database_config
+from .config import db_config
 
-
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@ip_address/db"
-SQLALCHEMY_DATABASE_URL: str = f"postgresql+psycopg2://{database_config.DATABASE_USER}:{urllib.parse.quote_plus(database_config.DATABASE_PASSWORD)}@{database_config.DATABASE_HOST}:{database_config.DATABASE_PORT}/{database_config.DATABASE}"
+# parse password, So special chars can be used in the database password
+# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@ip_address:port/db"
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql+psycopg2://"
+    f"{db_config.DATABASE_USER}:"
+    f"{urllib.parse.quote_plus(db_config.DATABASE_PASSWORD)}"
+    f"@{db_config.DATABASE_HOST}"
+    f":{db_config.DATABASE_PORT}"
+    f"/{db_config.DATABASE}"
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

@@ -20,5 +20,5 @@ class AuthenticationConfig(BaseSettings):
         env_file = ".env"
 
 
-database_config = DatabaseConfig()
+db_config = DatabaseConfig()
 auth_config = AuthenticationConfig()
