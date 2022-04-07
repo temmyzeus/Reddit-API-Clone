@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.sql import text
-from sqlalchemy.types import TIMESTAMP, DateTime, Integer, String, Date, Boolean
+from sqlalchemy.types import Boolean, Date, DateTime, Integer, String
 
 from .database import Base
 
@@ -8,7 +8,8 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
 
-    username = Column(String, nullable=False, primary_key=True, unique=True)
+    username = Column(String(30), nullable=False, primary_key=True, unique=True)
+    password = Column(String, nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     phone = Column(
@@ -18,7 +19,7 @@ class User(Base):
     location = Column(String, nullable=True)
     website = Column(String, nullable=True)
     birth_date = Column(Date, nullable=False)
-    # is_verified = Column(Boolean, server_default=text("false"))
+    is_verified = Column(Boolean, server_default=text("false"))
     created_at = Column(
         DateTime(timezone=True),
         server_default=text("now()"),
