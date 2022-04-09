@@ -23,7 +23,7 @@ def get_user(username: str, db: Session = Depends(get_db), current_user= Depends
 def create_user(user: schemas.CreateUserRequest, db: Session = Depends(get_db)):
     """
     Create a new user
-    
+
     user: dict
         User Details
     db: Session
@@ -48,7 +48,7 @@ def create_user(user: schemas.CreateUserRequest, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="email already exists"
         )
-    
+
     user.password = utils.hash_password(user.password)
     new_user = models.User(**user.dict())
     db.add(new_user)
@@ -79,4 +79,10 @@ def update_user(user_update_info: schemas.UpdateUserRequest, db: Session = Depen
     db.commit()
     return updated_user
 
-    pass
+@router.delete("/")
+def delete_user(db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)):
+    user = db.query(models.User).filter(models.User.username == current_user.username).delete(synchronize_session=False)
+    print(user)
+    db.commit()
+    # When user is deleted and access token is access, how to I deal with that?
+    return {"message": f"User {current_user.username} deleted"}
