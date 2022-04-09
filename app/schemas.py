@@ -40,3 +40,6 @@ class UpdateUserRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     access_token: str
+
+class TokenData(BaseModel):
+    username: str
