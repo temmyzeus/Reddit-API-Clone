@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -14,12 +14,15 @@ def get_tweets(db: Session = Depends(get_db)):
     tweets = db.query(models.Tweet).all()
     return tweets
 
+
 @router.get("/{id}", response_model=schemas.GetTweetResponse)
 def get_tweet(id: int, db: Session = Depends(get_db)):
-    """Get single Tweet"""
+    """Get single Tweet with specific ID"""
     tweet = db.query(models.Tweet).filter(models.Tweet.id == id).first()
     if not tweet:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tweet not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Tweet {id} not found"
+        )
     return tweet
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
