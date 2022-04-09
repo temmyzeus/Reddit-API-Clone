@@ -15,6 +15,7 @@ class DatabaseConfig(BaseSettings):
 class AuthenticationConfig(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: str
+    ACCESS_TOKEN_TIMEOUT_IN_MINUTES: int
 
     class Config:
         env_file = ".env"
