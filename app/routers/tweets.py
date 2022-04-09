@@ -8,14 +8,14 @@ router = APIRouter(prefix="/tweet", tags=["Tweets"])
 
 
 @router.get("/", response_model=list[schemas.GetTweetResponse])
-def get_tweets(db: Session = Depends(get_db)):
+def get_tweets(db: Session = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
     """Get a list of Tweets"""
     tweets = db.query(models.Tweet).all()
     return tweets
 
 
 @router.get("/{id}", response_model=schemas.GetTweetResponse)
-def get_tweet(id: int, db: Session = Depends(get_db)):
+def get_tweet(id: int, db: Session = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
     """Get single Tweet with specific ID"""
     tweet = db.query(models.Tweet).filter(models.Tweet.id == id).first()
     if not tweet:
