@@ -2,10 +2,12 @@ from datetime import datetime, timedelta
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
+from sqlalchemy.orm import Session
 
-from . import schemas
+from . import models, schemas
 from .config import auth_config
+from .database import get_db
 
 SECRET_KEY:str = auth_config.SECRET_KEY
 ALGORITHM:str = auth_config.ALGORITHM
@@ -42,11 +44,15 @@ def verify_auth_token(token: str, credentials_exception):
     return token_data
     
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authemticate": "Bearer"}
     )
     token_data = verify_auth_token(token, credentials_exception)
+    # the above logic seems enough but, if user still has acces token after deletion from database, return an error
+    user = db.query(models.User).filter(models.User.username == token_data.username).first()
+    if not user:
+        raise  credentials_exception
     return token_data
