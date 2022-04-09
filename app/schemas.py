@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr, PastDate
 class RootResponse(BaseModel):
     message: str
 
+
 class TweetRequest(BaseModel):
     content: str
 
@@ -24,14 +25,17 @@ class GetTweetResponse(BaseModel):
     class Config:
         orm_mode: bool = True
 
+
 class CreateUserRequest(BaseModel):
     username: str
+    password: str
     name: str
     email: EmailStr
-    birth_date: str # Create a pydantic date schema
+    birth_date: str  # Create a pydantic date schema
 
 
 class UpdateUserRequest(BaseModel):
+    name: Optional[str]
     phone: Optional[str]
     bio: Optional[str]
     location: Optional[str]
