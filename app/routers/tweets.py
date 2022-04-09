@@ -25,13 +25,15 @@ def get_tweet(id: int, db: Session = Depends(get_db)):
         )
     return tweet
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_tweet(tweet: schemas.TweetRequest, db: Session = Depends(get_db)):
-    print(tweet.dict())
-    new_tweet = models.Tweet(**tweet.dict())
+def create_tweet(tweet: schemas.TweetRequest, db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)):
+    new_tweet = models.Tweet(username=current_user.username, **tweet.dict())
     db.add(new_tweet)
     db.commit()
-    return {"message": "Tweet created"}
+    db.refresh(new_tweet)
+    return new_tweet
+
 
 @router.patch("/")
 def edit_tweet(tweet: schemas.UpdateTweetRequest, db: Session = Depends(get_db)):

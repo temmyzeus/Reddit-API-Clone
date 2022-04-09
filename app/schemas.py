@@ -9,7 +9,7 @@ class RootResponse(BaseModel):
 
 class TweetRequest(BaseModel):
     content: str
-    username: str
+
 
 class UpdateTweetRequest(BaseModel):
     content: Optional[str]
