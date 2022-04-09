@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from ..database import get_db
-
 
 router = APIRouter(prefix="/tweet", tags=["Tweets"])
 
@@ -35,9 +34,33 @@ def create_tweet(tweet: schemas.TweetRequest, db: Session = Depends(get_db), cur
     return new_tweet
 
 
-@router.patch("/")
-def edit_tweet(tweet: schemas.UpdateTweetRequest, db: Session = Depends(get_db)):
-    pass
+@router.patch("/{id}")
+def edit_tweet(
+    id: int, tweet: schemas.UpdateTweetRequest, db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)
+):
+    get_original_tweet_query = db.query(models.Tweet).filter(models.Tweet.id == id)
+    original_tweet = get_original_tweet_query.first()
+
+    # if tweet not found
+    if not original_tweet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Tweet not found"
+        )
+    
+    # if tweet found check if user can edit it
+    if original_tweet.username != current_user.username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized")
+
+    new_tweet_update = {
+        key: value if (value is not None) else original_tweet.__dict__[key]
+        for key, value in tweet.dict().items()
+    }
+    tweet = tweet.dict()
+    tweet["username"] = current_user.username
+    get_original_tweet_query.update(tweet, synchronize_session=False)
+    db.commit()
+    return {"message": f"Tweet {id} edited."}
+
 
 @router.delete("/{id}")
 def delete_tweet(id: int,  db: Session = Depends(get_db)):

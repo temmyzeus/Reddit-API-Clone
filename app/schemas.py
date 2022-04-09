@@ -12,8 +12,8 @@ class TweetRequest(BaseModel):
 
 
 class UpdateTweetRequest(BaseModel):
-    content: Optional[str]
-    username: Optional[str]
+    content: str
+
 
 class GetTweetResponse(BaseModel):
     id: int
