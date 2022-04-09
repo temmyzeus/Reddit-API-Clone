@@ -1,11 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from .. import models, schemas, utils
+from .. import models, schemas, utils, oauth2
 from ..database import get_db
-from .. import models, schemas
 
 router = APIRouter(prefix="/user", tags=["Users"])
+
+
+@router.get("/")
+def get_users(db: Session = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
+    users = db.query(models.User).all()
+    return users
+
+
+@router.get("/{username}")
+def get_user(username: str, db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)):
+    user = db.query(models.User).filter(models.User.username == username).first()
+    return user
+
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUserRequest, db: Session = Depends(get_db)):
