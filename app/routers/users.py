@@ -56,6 +56,27 @@ def create_user(user: schemas.CreateUserRequest, db: Session = Depends(get_db)):
     return {"message": "User Created"}
 
 
-@router.patch("/")
-def update_user(user: schemas.UpdateUserRequest, db: Session = Depends(get_db)):
+@router.patch("/", status_code=status.HTTP_201_CREATED)
+def update_user(user_update_info: schemas.UpdateUserRequest, db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)):
+    """
+    Update User info
+    """
+    update_user_query = db.query(models.User).filter(models.User.username == current_user.username)
+    user = update_user_query.first()
+
+    # To Do: Implement Password Change Logic
+    # P.S checking if user exists seem crazy since user is gotten from current_user, but doesn't  hurt
+    # since it should never be trigerred 
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User: {current_user.username} not Found")
+    
+    updated_user = {
+        key: value if (value is not None) else user.__dict__[key]
+        for key, value in user_update_info.dict().items()
+    }
+    
+    update_user_query.update(updated_user, synchronize_session=False)
+    db.commit()
+    return updated_user
+
     pass
