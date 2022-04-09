@@ -2,7 +2,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .schemas import RootResponse
-from .routers import tweets, users
+from .routers import tweets, users, auth
 
 api = FastAPI(title="Reddit API Clone")
 
@@ -13,7 +13,7 @@ api.add_middleware(
 
 api.include_router(users.router)
 api.include_router(tweets.router)
-
+api.include_router(auth.router)
 
 @api.get("/", status_code=status.HTTP_200_OK, response_model=RootResponse)
 def root() -> dict[str]:

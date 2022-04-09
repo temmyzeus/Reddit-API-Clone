@@ -36,3 +36,7 @@ class UpdateUserRequest(BaseModel):
     bio: Optional[str]
     location: Optional[str]
     website: Optional[str]
+
+
+class LoginResponse(BaseModel):
+    access_token: str
