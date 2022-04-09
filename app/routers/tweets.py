@@ -63,11 +63,21 @@ def edit_tweet(
 
 
 @router.delete("/{id}")
-def delete_tweet(id: int,  db: Session = Depends(get_db)):
+def delete_tweet(id: int, db: Session = Depends(get_db), current_user= Depends(oauth2.get_current_user)):
     """Delete a tweet based on ID"""
-    tweet = db.query(models.Tweet).filter(models.Tweet.id == id).delete()
-    # tweet return 1 if deleted and 0 if is isn't deleted, i.e id not present
-    if not tweet:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Tweet not found")
+    get_original_tweet_query = db.query(models.Tweet).filter(models.Tweet.id == id)
+    original_tweet = get_original_tweet_query.first()
+
+    # if tweet not found
+    if not original_tweet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Tweet not found"
+        )
+
+    # if tweet found, check if user can delete it
+    if original_tweet.username != current_user.username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized")
+
+    get_original_tweet_query.delete(synchronize_session=False)
     db.commit()
-    return {"message": "Tweet Deleted"}
+    return {"message": f"Tweet {id} Deleted"}
